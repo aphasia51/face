@@ -1,4 +1,4 @@
-package scripts 
+package scripts
 
 import (
 	"encoding/json"
@@ -17,18 +17,18 @@ import (
 )
 
 func ExampleShowProgress(inFileName, outFileName string, start, duration int) {
-	a, err := ffmpeg.Probe(inFileName)
-	if err != nil {
-		panic(err)
-	}
-	totalDuration, err := probeDuration(a)
-	if err != nil {
-		panic(err)
-	}
+	// a, err := ffmpeg.Probe(inFileName)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// totalDuration, err := probeDuration(a)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	err = ffmpeg.Input(inFileName, ffmpeg.KwArgs{"ss": start}).
+	err := ffmpeg.Input(inFileName, ffmpeg.KwArgs{"ss": start}).
 		Output(outFileName, ffmpeg.KwArgs{"t": duration}).
-		GlobalArgs("-progress", "unix://"+TempSock(totalDuration)).
+		// GlobalArgs("-progress", "unix://"+TempSock(totalDuration)).
 		OverWriteOutput().
 		Run()
 	if err != nil {

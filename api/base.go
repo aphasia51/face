@@ -3,7 +3,6 @@ package api
 import (
 	"face/dao"
 	"face/forms"
-	"face/scripts"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	ffmpeg "github.com/u2takey/ffmpeg-go"
 	"go.uber.org/zap"
 )
 
@@ -70,12 +70,27 @@ func OneCut(ctx *gin.Context) {
 	Stamp := time.Now().Unix()
 	timeStamp <- int(Stamp)
 
-	scripts.ExampleShowProgress(
-		"./in_data/in1.mp4",
-		fmt.Sprintf("./out_data/out_%v.mp4", Stamp),
-		settings.Start,
-		settings.Duration,
-	)
+	// scripts.ExampleShowProgress(
+	// 	"./in_data/in1.mp4",
+	// 	fmt.Sprintf("./out_data/out_%v.mp4", Stamp),
+	// 	settings.Start,
+	// 	settings.Duration,
+	// )
+
+	err := ffmpeg.Input("./in_data/in1.mp4", ffmpeg.KwArgs{"ss": settings.Start}).
+		Output(fmt.Sprintf("./out_data/out_%v.mp4", timeStamp), ffmpeg.KwArgs{"t": settings.Duration}).
+		GlobalArgs("-progress").
+		OverWriteOutput().
+		Run()
+
+	if err != nil {
+
+		fmt.Println("Cut error")
+		sms <- false
+		return
+	}
+
+	sms <- true
 
 	record := forms.Record{
 		// Id:       1,
@@ -90,21 +105,6 @@ func OneCut(ctx *gin.Context) {
 		zap.S().Info("用户记录存储失败!")
 	}
 	zap.S().Info("用户记录存储成功!")
-
-	// err := ffmpeg.Input("./in_data/in1.mp4", ffmpeg.KwArgs{"ss": settings.Start}).
-	// 	Output(fmt.Sprintf("./out_data/out_%v.mp4", timeStamp), ffmpeg.KwArgs{"t": settings.Duration}).
-	// 	GlobalArgs("-progress").
-	// 	OverWriteOutput().
-	// 	Run()
-	//
-	// if err != nil {
-	//
-	// 	fmt.Println("Cut error")
-	// 	sms <- false
-	// 	return
-	// }
-
-	sms <- true
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"msg": "剪切完成，已通知您下载",
