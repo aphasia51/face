@@ -22,13 +22,11 @@ var upgrader = websocket.Upgrader{
 
 var (
 	sms       = make(chan bool, 1)
-	timeStamp = make(chan int, 1)
+	timeStamp = make(chan int64, 1)
 )
 
 func DownLoad(ctx *gin.Context) {
 	part, exists := <-timeStamp
-	fmt.Println(part)
-	fmt.Println(part, "paaaaaaaaaaaaaaaaaaaaart")
 	if exists {
 		filename := fmt.Sprintf("out_%v.mp4", part)
 		ctx.File(fmt.Sprintf("./out_data/%v", filename))
@@ -68,7 +66,7 @@ func OneCut(ctx *gin.Context) {
 	}
 
 	Stamp := time.Now().Unix()
-	timeStamp <- int(Stamp)
+	timeStamp <- Stamp
 
 	// scripts.ExampleShowProgress(
 	// 	"./in_data/in1.mp4",
@@ -78,7 +76,7 @@ func OneCut(ctx *gin.Context) {
 	// )
 
 	err := ffmpeg.Input("./in_data/in1.mp4", ffmpeg.KwArgs{"ss": settings.Start}).
-		Output(fmt.Sprintf("./out_data/out_%v.mp4", timeStamp), ffmpeg.KwArgs{"t": settings.Duration}).
+		Output(fmt.Sprintf("./out_data/out_%v.mp4", Stamp), ffmpeg.KwArgs{"t": settings.Duration}).
 		GlobalArgs("-progress").
 		OverWriteOutput().
 		Run()
