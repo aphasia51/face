@@ -29,5 +29,6 @@ func InitCutRouter(Router *gin.RouterGroup) {
 	{
 		CutRouter.GET("commit", api.OneCut)
 		CutRouter.GET("push", api.Notice)
+		CutRouter.GET("download", api.DownLoad)
 	}
 }

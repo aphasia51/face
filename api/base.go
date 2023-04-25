@@ -4,6 +4,7 @@ import (
 	"face/dao"
 	"face/forms"
 	"face/scripts"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -22,6 +23,17 @@ var upgrader = websocket.Upgrader{
 var (
 	sms = make(chan bool, 1)
 )
+
+func DownLoad(ctx *gin.Context) {
+	part, exists := ctx.Get("suffix")
+	if exists {
+		filename := fmt.Sprintf("out_%v.mp4", part)
+		ctx.File(fmt.Sprintf("./out_data/%v", filename))
+	} else {
+		zap.S().Info("文件下载地址生成失败")
+		return
+	}
+}
 
 func Notice(ctx *gin.Context) {
 	client, _ := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
@@ -52,11 +64,12 @@ func OneCut(ctx *gin.Context) {
 		return
 	}
 
-	// timeStamp := time.Now().Unix()
+	timeStamp := time.Now().Unix()
+	ctx.Set("suffix", timeStamp)
 
 	scripts.ExampleShowProgress(
 		"./in_data/in1.mp4",
-		"./out_data/out_%v.mp4",
+		fmt.Sprintf("./out_data/out_%v.mp4", timeStamp),
 		settings.Start,
 		settings.Duration,
 	)
@@ -91,6 +104,11 @@ func OneCut(ctx *gin.Context) {
 	sms <- true
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"msg": "剪切完成，已通知您下载.",
+		"msg": "剪切完成，已通知您下载",
+		"addr": fmt.Sprintf(
+			"%v:%v/download",
+			dao.MySQLConfig.Host,
+			dao.MySQLConfig.Port,
+		),
 	})
 }
