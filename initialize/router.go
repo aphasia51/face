@@ -3,6 +3,8 @@ package initialize
 import (
 	"net/http"
 
+	"main/router"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,6 +16,9 @@ func Routers() *gin.Engine {
 			"Status": "Success",
 		})
 	})
+
+	CutGroup := Router.Group("/v1/cut")
+	router.InitUserRouter(CutGroup)
 
 	return Router
 }
