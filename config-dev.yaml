@@ -1,0 +1,4 @@
+host: '8.131.255.177'
+user: 'root'
+password: 'asroot'
+database: 'face'

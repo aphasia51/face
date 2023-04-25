@@ -1,0 +1,5 @@
+host: '8.131.255.177'
+port: 3306
+user: 'root'
+password: 'asroot'
+database: 'face'
