@@ -12,7 +12,6 @@ import (
 
 func AuthJWTMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		// extract jwt, Authorization: "Bearer " + token
 		authHeader := ctx.Request.Header.Get("Authorization")
 		if authHeader == "" { // return in advance
 			ctx.JSON(http.StatusOK, gin.H{
@@ -22,7 +21,6 @@ func AuthJWTMiddleware() gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
-		// parse jwt
 		parts := strings.SplitN(authHeader, " ", 2)
 		if !(len(parts) == 2 && parts[0] == "Bearer") {
 			ctx.JSON(http.StatusOK, gin.H{
@@ -41,9 +39,7 @@ func AuthJWTMiddleware() gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
-		// if needed, inject username into context
 		ctx.Set("username", mc.Username)
-		// pass request
 		ctx.Next()
 	}
 }
@@ -72,9 +68,7 @@ func GenerateToken(username string) (string, error) {
 	return t.SignedString(MySecret)
 }
 
-// parse token
 func ParseToken(tokenString string) (*MyClaims, error) {
-	// parse token
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		&MyClaims{},

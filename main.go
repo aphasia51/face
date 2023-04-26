@@ -19,6 +19,7 @@ func main() {
 	// 初始化路由
 	Router := initialize.Routers()
 
+	// 启动监听端口
 	if err := Router.Run(); err != nil {
 		zap.S().Panic("启动失败: ", err.Error())
 	}
